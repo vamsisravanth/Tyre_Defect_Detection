@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CHECK YOUR TYRE</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+           color:white;
+
+ background-image: url("image (1).jpg");
+
+        }
+
+      
+        h1 {
+            font-family: helvetica;
+            text-transform: uppercase;
+            font-size: 36px;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        #image-container {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        #selected-image {
+            max-width: 200px;
+            height: auto;
+        }
+
+        #cropped-image {
+            max-width: 200px;
+            height: auto;
+            margin-top: 10px;
+        }
+
+        #cropped-image-container {
+            position: relative;
+            display: inline-block;
+            
+        }
+
+        .overlay {
+            position: absolute;
+            top: 50%;
+            left: 150%;
+            transform: translate(-50%, -50%);
+            font-size: 40px;
+            color: white;
+            font-weight: bold;
+        }
+
+        .overlay.good {
+            color: green;
+        }
+
+        .overlay.defective {
+            color: red;
+        }
+
+        #confirm-button {
+            background-color: #4caf50;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #rotate-button {
+            background-color: #008CBA;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+        #predict-button {
+            background-color: #4caf50;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #predict-button:hover,
+        #rotate-button:hover,
+        #confirm-button:hover {
+            background-color: #45a049;
+            transform: scale(1.1);
+        }
+
+        #prediction-container {
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #loading-indicator {
+            display: none;
+            font-weight: bold;
+        }
+
+        #error-message {
+            color: red;
+        }
+
+        /* Add this CSS rule for transparent background */
+        .cropper-container {
+            background-color: transparent !important;
+        }
+        .dnone{
+        display:none;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+</head>
+
+<body>
+    
+    <h1 style="text-align:center">Check your Tyre</h1>
+    <div id="image-container">
+        <input id="image-selector" type="file">
+        <div>
+            <img id="selected-image" src="" alt="Selected Image" >
+        </div>
+        <div>
+            <h5>Cropped Image</h5>
+            <div id="cropped-image-container">
+                <img id="cropped-image" src="" alt="Cropped Image">
+                <div class="overlay" id="overlay-mark"></div>
+            </div>
+        </div>
+        <button id="confirm-button">OK</button>
+        <button id="rotate-button">Rotate 90°</button>
+    </div>
+
+    <button id="predict-button">Predict</button>
+
+    <div id="prediction-container">
+        <p style="font-weight: bold;">Predictions (if probability < 0.5 then it is DEFECTIVE Tyre otherwise GOOD Tyre)</p>
+        <p>Probability: <span id="defective-prediction"></span></p>
+        <p>Result: <span id="good-prediction"></span></p>
+        <div id="loading-indicator">Loading...</div>
+        <div id="error-message"></div>
+    </div>
+
+    <script>
+        let base64Image;
+        let cropper;
+
+        $("#image-selector").change(function (){
+
+            let reader = new FileReader();
+            reader.onload = function (e) {
+                let dataURL = reader.result;
+
+                $('#selected-image').attr("src", dataURL);
+                base64Image = dataURL.split(',')[1]; // Extract base64 data without assuming format
+
+                // Initialize cropper when an image is loaded
+                if (cropper) {
+                    cropper.destroy();
+                }
+                cropper = new Cropper($('#selected-image')[0], {
+                    aspectRatio: 1 / 1,
+                    viewMode: 1,
+                    autoCropArea: 1,
+                    crop: function (event) {
+                        // Handle crop events if needed
+                    }
+                });
+            }
+            reader.readAsDataURL($("#image-selector")[0].files[0]);
+
+            $("#defective-prediction").text("");
+            $("#good-prediction").text("");
+        });
+
+        $("#confirm-button").click(function () {
+            // Show the cropped image
+            let croppedCanvas = cropper.getCroppedCanvas();
+            if (croppedCanvas) {
+                $('#cropped-image').attr("src", croppedCanvas.toDataURL());
+            }
+        });
+
+        $("#rotate-button").click(function () {
+            // Rotate the image by 90 degrees
+            cropper.rotate(90);
+        });
+
+        $("#predict-button").click(function () {
+            // Show loading indicator
+            $("#loading-indicator").show();
+            $("#error-message").text("");
+
+            // Get cropped canvas data
+            let croppedCanvas = cropper.getCroppedCanvas();
+            if (!croppedCanvas) {
+                $("#loading-indicator").hide();
+                $("#error-message").text("Error: Please crop the image before predicting.");
+                return;
+            }
+
+            // Convert cropped canvas data to base64
+            base64Image = croppedCanvas.toDataURL().split(',')[1];
+
+            let message = {
+                image: base64Image,
+            };
+
+            // Make an actual prediction request to your server
+            $.ajax({
+                url: "http://127.0.0.1:5000/predict",
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify(message),
+                success: function (response) {
+                    $("#defective-prediction").text(response.prediction.defective_probability.toFixed(4));
+                    $("#good-prediction").text(response.prediction.defective_label === 1 ? 'Good' : 'Defective');
+
+                    // Update the overlay based on the prediction result
+                    let overlay = $('#cropped-image-container .overlay');
+                    overlay.removeClass('good defective').text('');
+
+                    if (response.prediction.defective_label === 1) {
+                        // Good prediction (green tick mark)
+                        overlay.addClass('good').text('✔ Good');
+                    } else {
+                        // Defective prediction (red cross mark)
+                        overlay.addClass('defective').text('✘ Defective');
+                    }
+                },
+                error: function () {
+                    // Hide loading indicator
+                    $("#loading-indicator").hide();
+                    $("#error-message").text("Error: Prediction request failed. Please try again.");
+                },
+                complete: function () {
+                    // Hide loading indicator after request completion
+                    $("#loading-indicator").hide();
+                }
+            });
+        });
+
+        $("#rotate-button").click(function () {
+            // Rotate the image by 90 degrees
+            let currentRotation = cropper.getData().rotate;
+            cropper.rotate(currentRotation + 90);
+            
+        });
+    </script>
+</body>
+
+</html>
