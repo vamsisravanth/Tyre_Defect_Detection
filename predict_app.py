@@ -8,7 +8,6 @@ from flask import request, jsonify, abort, Flask
 import logging
 import os
 import time
-from flask_cors import CORS
 
 
 # Configure logging
@@ -16,7 +15,7 @@ logging.basicConfig(filename='app.log', level=logging.DEBUG)
 
 MODEL_FILE = os.environ.get('MODEL_FILE', 'MV2_RMS_best_model.h5')
 app = Flask(__name__)
-CORS(app)
+
 def get_model(model_file):
     model = load_model(model_file)
     logging.info("Model loaded!")
