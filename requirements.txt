@@ -1,4 +1,4 @@
-tensorflow==2.15.0 --index-url https://storage.googleapis.com/tensorflow/linux/cpu/
+tensorflow==2.11.0 --index-url https://storage.googleapis.com/tensorflow/linux/cpu/
 Flask==2.2.5
 gunicorn==19.9.0
 itsdangerous==2.0.1
@@ -11,6 +11,5 @@ scikit-learn>=1.2.2
 matplotlib>=3.8.0
 pandas>=2.1.4
 keras>=2.15.0
-h5py==3.9.0
 seaborn>=0.12.2
 
