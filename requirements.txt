@@ -10,6 +10,6 @@ scipy>=1.11.4
 scikit-learn>=1.2.2
 matplotlib>=3.8.0
 pandas>=2.1.4
-keras>=2.15.0
+keras>=2.12.0
 seaborn>=0.12.2
 
