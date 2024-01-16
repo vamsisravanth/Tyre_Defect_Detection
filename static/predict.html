@@ -227,7 +227,7 @@
 
             // Make an actual prediction request to your server
             $.ajax({
-                url: "http://127.0.0.1:5000/predict",
+                url: "/predict",
                 type: "POST",
                 contentType: "application/json",
                 data: JSON.stringify(message),
