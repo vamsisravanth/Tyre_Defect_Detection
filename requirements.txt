@@ -11,4 +11,4 @@ matplotlib>=3.8.0
 pandas>=2.1.4
 keras>=2.15.0
 seaborn>=0.12.2
-tensorflow>=2.13.0
+tensorflow==2.13.0
