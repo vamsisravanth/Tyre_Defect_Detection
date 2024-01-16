@@ -1,4 +1,4 @@
-tensorflow==2.11.0 --index-url https://storage.googleapis.com/tensorflow/linux/cpu/
+tensorflow==2.12.0 --index-url https://storage.googleapis.com/tensorflow/linux/cpu/
 Flask==2.2.5
 gunicorn==19.9.0
 itsdangerous==2.0.1
