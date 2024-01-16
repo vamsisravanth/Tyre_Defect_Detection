@@ -1,0 +1,6 @@
+libhdf5-dev
+libhdf5-serial-dev
+python3-h5py
+python3-scipy
+python3-matplotlib
+python3-keras
