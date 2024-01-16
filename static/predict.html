@@ -227,7 +227,7 @@
 
             // Make an actual prediction request to your server
             $.ajax({
-                url: "/predict",
+                url: "https://tyre-defect-detection-7f42905d2b0b.herokuapp.com/predict",
                 type: "POST",
                 contentType: "application/json",
                 data: JSON.stringify(message),
